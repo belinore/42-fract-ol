@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 19:45:21 by belinore          #+#    #+#             */
-/*   Updated: 2025/03/31 21:43:30 by belinore         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:59:19 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,13 @@ int	print_number(int nbr, char c, int *print_len)
 {
 	if (c == 'd' || c == 'i')
 	{
-		*print_len += count_digits(nbr);
+		*print_len += ft_count_digits(nbr);
 		if (ft_putnbr(nbr) == -1)
 			return (-1);
 	}
 	else if (c == 'u')
 	{
-		*print_len += count_digits((unsigned int)nbr);
+		*print_len += ft_count_digits((unsigned int)nbr);
 		if (ft_putnbr_unsigned((unsigned int)nbr) == -1)
 			return (-1);
 	}
@@ -57,7 +57,7 @@ int	print_number(int nbr, char c, int *print_len)
 int	print_float(double nbr, int *print_len)
 {
 	ft_putnbr_float(nbr, 6);
-	*print_len += count_digits((int)nbr) + 7;
+	*print_len += ft_count_digits((int)nbr) + 7;
 	return (0);
 }
 

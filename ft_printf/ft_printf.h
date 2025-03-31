@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 17:32:48 by belinore          #+#    #+#             */
-/*   Updated: 2025/03/31 21:20:40 by belinore         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:58:53 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 # include <stdlib.h>
 # include <unistd.h>
 
-int	count_digits(ssize_t num);
+int	ft_count_digits(ssize_t num);
 int	ft_putnbr(int n);
 int	ft_putnbr_base(size_t nbr, char *base, int *print_len);
 int	ft_putnbr_float(double num, int decimal_places);

@@ -6,13 +6,13 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 19:45:45 by belinore          #+#    #+#             */
-/*   Updated: 2025/03/21 18:33:48 by belinore         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:59:20 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 
-int	count_digits(ssize_t num)
+int	ft_count_digits(ssize_t num)
 {
 	int	count;
 
