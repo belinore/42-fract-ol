@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 20:00:02 by belinore          #+#    #+#             */
-/*   Updated: 2025/03/21 18:33:59 by belinore         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:38:21 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,10 @@ int	ft_putnbr_base(size_t nbr, char *base, int *print_len)
 
 	base_len = ft_strlen(base);
 	if (nbr >= base_len)
-		ft_putnbr_base(nbr / base_len, base, print_len);
+	{
+		if (ft_putnbr_base(nbr / base_len, base, print_len) == -1)
+			return (-1);
+	}
 	num = base[nbr % base_len];
 	if (write(1, &num, 1) == -1)
 		return (-1);

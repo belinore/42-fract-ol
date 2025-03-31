@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/10 19:45:35 by belinore          #+#    #+#             */
-/*   Updated: 2025/03/21 18:34:02 by belinore         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:38:43 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@ int	ft_putnbr_unsigned(unsigned int n)
 	num = n;
 	if (num >= 10)
 	{
-		ft_putnbr_unsigned(num / 10);
+		if (ft_putnbr_unsigned(num / 10) == -1)
+			return (-1);
 	}
 	c = num % 10 + '0';
 	if (write(1, &c, 1) == -1)
