@@ -6,7 +6,7 @@
 #    By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/22 18:28:30 by belinore          #+#    #+#              #
-#    Updated: 2025/03/31 16:16:55 by belinore         ###   ########.fr        #
+#    Updated: 2025/03/31 16:53:44 by belinore         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,7 +33,6 @@ ifeq ($(shell uname), Darwin)  # macOS
 INCLUDES = -Imlx/minilibx_macos
     LFLAGS = -L ./mlx/minilibx_macos \
               -l mlx -framework OpenGL -framework Appkit \
-			  -framework Cocoa -framework IOKit \
 			  -L$(LIBFTPRINTF_DIR) -lftprintf
 else  # Assume Linux
 INCLUDES = -Imlx/minilibx-linux
