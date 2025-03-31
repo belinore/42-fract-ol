@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/03 17:30:48 by belinore          #+#    #+#             */
-/*   Updated: 2025/03/31 21:20:11 by belinore         ###   ########.fr       */
+/*   Updated: 2025/03/31 21:54:15 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,7 @@ int	printer(va_list args_ptr, const char *str, int *print_len)
 		if (str[i] != '%' || (str[i] == '%' && str[i + 1] == '%'))
 			x = print_char(str[i], print_len);
 		else
-		{
 			x = print_variable(&args_ptr, str[i + 1], print_len);
-		}
 		if (x == -1)
 			return (-1);
 		if (str[i] == '%')
