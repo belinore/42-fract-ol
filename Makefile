@@ -6,7 +6,7 @@
 #    By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/22 18:28:30 by belinore          #+#    #+#              #
-#    Updated: 2025/03/31 16:53:44 by belinore         ###   ########.fr        #
+#    Updated: 2025/03/31 17:10:10 by belinore         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,17 +28,16 @@ CC = cc
 
 CFLAGS = -Wall -Wextra -Werror -g -O2
 
-# Define OS-specific flags
 ifeq ($(shell uname), Darwin)  # macOS
-INCLUDES = -Imlx/minilibx_macos
-    LFLAGS = -L ./mlx/minilibx_macos \
-              -l mlx -framework OpenGL -framework Appkit \
-			  -L$(LIBFTPRINTF_DIR) -lftprintf
+	INCLUDES = -Imlx/minilibx_macos
+	LFLAGS = -L ./mlx/minilibx_macos \
+        	-l mlx -framework OpenGL -framework Appkit \
+			-L$(LIBFTPRINTF_DIR) -lftprintf
 else  # Assume Linux
-INCLUDES = -Imlx/minilibx-linux
-    LFLAGS = -L./mlx/minilibx-linux \
-              -l mlx_Linux -l X11 -l Xext -l Xrender -l GL -lm \
-			  -L$(LIBFTPRINTF_DIR) -lftprintf
+	INCLUDES = -Imlx/minilibx-linux
+	LFLAGS = -L./mlx/minilibx-linux \
+			-l mlx_Linux -l X11 -l Xext -l Xrender -l GL -lm \
+			-L$(LIBFTPRINTF_DIR) -lftprintf
 endif
 
 all: $(LIBFTPRINTF) $(NAME)
