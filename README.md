@@ -22,12 +22,11 @@ This project was a deep dive into both graphical programming and mathematical vi
 
 ## What are fractals?
 
-Fractals are complex geometric shapes that repeat themselves at different scales. They often appear in nature — like snowflakes, coastlines, and plants. Mathematical fractals such as the Mandelbrot set, are similar but without physical limits, allowing for infinitely complex patterns. 
+Fractals are complex geometric shapes that show self-similarity at different scales - think snowflakes, ferns and cauliflower. Mathematical fractals such as the Mandelbrot are similar to those found in nature but with infinite complexity, meaning nomatter how far you zoom, new patterns will continue emerging. 
 
-In practice, rendering is limited by computational power and memory. In this project, the zoom depth is limited by how many digits you can store with double-precision floating point numbers, but that still means you can zoom in from a pixel representing something as big as the sun all the way to smaller than a grain of sand.
+They are closely tied to chaos theory, where complex and unpredictable results can stem from very simple rules: the Mandelbrot formula is simply Z = Z² + C, where each pixel on the screen represents a complex number C. The patterns emerge based on how the result evolves over many iterations - see notes for further detail and links.
 
-Here are some great resources that helped me understand complex numbers and what each pixel represents:
-**ADDLINKS**
+Rendering is of course limited by computational power and memory - in this project, the zoom depth is constrained by the digits in a double (float64). But that still means that if one pixel represents the size of the sun, you can zoom in until it is smaller than a grain of sand.
 
 ## Features
 
@@ -94,6 +93,9 @@ fract-ol/
 ```
 
 ## Notes
+
+Here are some great resources that helped me understand complex numbers and what each pixel represents:
+**ADDLINKS**
 
 - Fractals are rendered by mapping each screen pixel to a complex number and iteratively applying a function to determine escape time
 - Performance optimizations include limiting calculations, redraws and controlling iteration depth
