@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:27:27 by belinore          #+#    #+#             */
-/*   Updated: 2025/03/24 13:53:41 by belinore         ###   ########.fr       */
+/*   Updated: 2025/08/29 17:36:46 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,11 @@ int	key_handler(int keycode, t_vars *vars)
 		change_colors(keycode, vars);
 	else if (keycode == R_RESET)
 		initialize_fractal_params(&vars->fractal);
+	else if (keycode == T_THREAD_TOGGLE)
+	{
+		vars->multithreading = !vars->multithreading;
+		printf("Multithreading = %i\n", vars->multithreading);
+	}
 	render_fractal(vars);
 	return (0);
 }

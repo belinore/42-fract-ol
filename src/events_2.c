@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   events_2.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: belinore <belinore@student.42.fr>          +#+  +:+       +#+        */
+/*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:27:11 by belinore          #+#    #+#             */
-/*   Updated: 2025/03/27 14:39:14 by belinore         ###   ########.fr       */
+/*   Updated: 2025/08/29 15:56:09 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ int	close_window(t_vars *vars)
 {
 	mlx_destroy_image(vars->mlx, vars->img.img_ptr);
 	mlx_destroy_window(vars->mlx, vars->window);
-	mlx_destroy_display(vars->mlx);
+	//mlx_destroy_display(vars->mlx);
 	free(vars->mlx);
 	exit(0);
 }

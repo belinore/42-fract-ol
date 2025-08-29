@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:27:05 by belinore          #+#    #+#             */
-/*   Updated: 2025/03/31 16:20:15 by belinore         ###   ########.fr       */
+/*   Updated: 2025/08/29 17:34:26 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,17 @@ To switch from linux to mac
 4. Make as usual
 */
 
-# include "../mlx/minilibx-linux/mlx.h"
-//# include "../mlx/minilibx_macos/mlx.h"
+// # include "../mlx/minilibx-linux/mlx.h"
+# include "../mlx/minilibx_macos/mlx.h"
 # include "../ft_printf/ft_printf.h"
 # include <math.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
+# include <pthread.h>
+# include <sys/time.h>
 
+# define MAX_CORES 8
 # define MAX_PALETTE_SIZE 1024
 # define MAX_BASE_COLORS 6
 # define ITERATIONS 50
@@ -42,38 +45,39 @@ To switch from linux to mac
 # define WHITE 0xFFFFFF
 # define RED 0xFF0000
 
-//KEYCODES LINUX
-# define ESC 65307
-# define W_MOVE_UP 119
-# define S_MOVE_DOWN 115
-# define A_MOVE_LEFT 97
-# define D_MOVE_RIGHT 100
-# define UP_ARROW 65362
-# define DOWN_ARROW 65364
-# define LEFT_ARROW 65361
-# define RIGHT_ARROW 65363
-# define PLUS_ITERS 65451
-# define MINUS_ITERS 65453
-# define DOUBLE_ITERS 32
-# define HALVE_ITERS 65288
-# define LEFT_CLICK 1
-# define RIGHT_CLICK 3
-# define MIDDLE_CLICK 2
-# define SCROLL_DOWN 4
-# define SCROLL_UP 5
-# define COLORS_1 49
-# define COLORS_2 50
-# define COLORS_3 51
-# define COLORS_4 52
-# define COLORS_5 53
-# define COLORS_6 54
-# define COLORS_7 55
-# define COLORS_8 56
-# define COLORS_0 48
-# define ENTER_MOUSE_EVOLVE 65293
-# define R_RESET 114
+// //KEYCODES LINUX
+// # define ESC 65307
+// # define W_MOVE_UP 119
+// # define S_MOVE_DOWN 115
+// # define A_MOVE_LEFT 97
+// # define D_MOVE_RIGHT 100
+// # define UP_ARROW 65362
+// # define DOWN_ARROW 65364
+// # define LEFT_ARROW 65361
+// # define RIGHT_ARROW 65363
+// # define PLUS_ITERS 65451
+// # define MINUS_ITERS 65453
+// # define DOUBLE_ITERS 32
+// # define HALVE_ITERS 65288
+// # define LEFT_CLICK 1
+// # define RIGHT_CLICK 3
+// # define MIDDLE_CLICK 2
+// # define SCROLL_DOWN 4
+// # define SCROLL_UP 5
+// # define COLORS_1 49
+// # define COLORS_2 50
+// # define COLORS_3 51
+// # define COLORS_4 52
+// # define COLORS_5 53
+// # define COLORS_6 54
+// # define COLORS_7 55
+// # define COLORS_8 56
+// # define COLORS_0 48
+// # define ENTER_MOUSE_EVOLVE 65293
+// # define R_RESET 114
+// # define T_THREAD_TOGGLE 116
 
-/* // KEYCODES MACOS
+// KEYCODES MACOS
 # define ESC 53
 # define W_MOVE_UP 13
 # define S_MOVE_DOWN 1
@@ -102,7 +106,8 @@ To switch from linux to mac
 # define COLORS_8 28
 # define COLORS_0 29
 # define ENTER_MOUSE_EVOLVE 36
-# define R_RESET 15 */
+# define R_RESET 15
+# define T_THREAD_TOGGLE 17
 
 /// events
 enum
@@ -168,6 +173,17 @@ typedef struct s_img
 	int		endian;
 }				t_img;
 
+typedef struct s_vars t_vars;
+
+typedef struct s_thread
+{
+	int				id;
+	pthread_t		thread;
+	int				start_y;
+	int				end_y;
+	struct s_vars	*vars;
+}					t_thread;
+
 // master struct
 typedef struct s_vars
 {
@@ -178,6 +194,10 @@ typedef struct s_vars
 	t_point		mouse;
 	t_colors	colors;
 	int			mouse_evolve;
+	int			multithreading;
+	t_thread	threads[MAX_CORES];
+	pthread_mutex_t	mutex;
+	void		(*fract_calc)(t_point, struct s_vars *, t_fractal *);
 }				t_vars;
 
 // init.c
@@ -199,17 +219,17 @@ void			zoom(double zoom_factor, t_vars *vars);
 
 // render.c
 void			render_fractal(t_vars *fractal);
-void			add_pixels_to_image(t_vars *vars, void (*fractal)(int, int,
+void			add_pixels_to_image(t_vars *vars, void (*fractal)(t_point p,
 						t_vars *, t_fractal *));
 double			scale(double unscaled_num, double new_min, double new_max,
 					double old_max);
 void			put_pixel(t_img *data, int x, int y, int color);
 
 // fractals.c
-void			mandelbrot(int x, int y, t_vars *vars, t_fractal *fractal);
-void			julia(int x, int y, t_vars *vars, t_fractal *fractal);
-void			burning_ship(int x, int y, t_vars *vars, t_fractal *fractal);
-void			julia_ship(int x, int y, t_vars *vars, t_fractal *fractal);
+void			mandelbrot(t_point p, t_vars *vars, t_fractal *fractal);
+void			julia(t_point p, t_vars *vars, t_fractal *fractal);
+void			burning_ship(t_point p, t_vars *vars, t_fractal *fractal);
+void			julia_ship(t_point p, t_vars *vars, t_fractal *fractal);
 
 // colors.c
 int				get_color(int i, t_vars *vars);
