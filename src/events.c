@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:27:27 by belinore          #+#    #+#             */
-/*   Updated: 2025/08/29 17:36:46 by belinore         ###   ########.fr       */
+/*   Updated: 2025/08/31 18:49:15 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,8 +93,16 @@ int	key_handler(int keycode, t_vars *vars)
 		initialize_fractal_params(&vars->fractal);
 	else if (keycode == T_THREAD_TOGGLE)
 	{
-		vars->multithreading = !vars->multithreading;
-		printf("Multithreading = %i\n", vars->multithreading);
+		vars->threads.multithreading = !vars->threads.multithreading;
+		printf("Multithreading = %i\n", vars->threads.multithreading);
+		if (vars->threads.multithreading == 0)
+		{
+			stop_threads(vars);
+			pthread_mutex_destroy(&vars->threads.mutex);
+			pthread_cond_destroy(&vars->threads.cond);
+		}
+		else
+			initialize_threads(vars);
 	}
 	render_fractal(vars);
 	return (0);

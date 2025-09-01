@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:27:05 by belinore          #+#    #+#             */
-/*   Updated: 2025/08/29 17:34:26 by belinore         ###   ########.fr       */
+/*   Updated: 2025/09/01 16:34:54 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ To switch from linux to mac
 # include <pthread.h>
 # include <sys/time.h>
 
-# define MAX_CORES 8
+# define MAX_THREADS 8
 # define MAX_PALETTE_SIZE 1024
 # define MAX_BASE_COLORS 6
 # define ITERATIONS 50
@@ -181,8 +181,22 @@ typedef struct s_thread
 	pthread_t		thread;
 	int				start_y;
 	int				end_y;
+	int				last_frame;
 	struct s_vars	*vars;
 }					t_thread;
+
+typedef struct	s_threads
+{
+	int				multithreading;
+	t_thread		thread[MAX_THREADS];
+	int				nb_threads;
+	pthread_mutex_t	mutex;
+	pthread_cond_t	cond;
+	int				frame_id;
+	int				work_available;
+	int				work_done;
+	int				stop;
+}					t_threads;
 
 // master struct
 typedef struct s_vars
@@ -191,14 +205,15 @@ typedef struct s_vars
 	void		*window;
 	t_img		img;
 	t_fractal	fractal;
+	t_threads	threads;
 	t_point		mouse;
 	t_colors	colors;
 	int			mouse_evolve;
-	int			multithreading;
-	t_thread	threads[MAX_CORES];
-	pthread_mutex_t	mutex;
 	void		(*fract_calc)(t_point, struct s_vars *, t_fractal *);
 }				t_vars;
+
+void			initialize_threads(t_vars *vars);
+void 			stop_threads(t_vars *vars);
 
 // init.c
 void			initialize_mlx(t_vars *vars);
@@ -218,9 +233,9 @@ void			switch_to_julia(t_vars *vars, t_fractal *prev);
 void			zoom(double zoom_factor, t_vars *vars);
 
 // render.c
+void			*thread_render_section(void *arg);
 void			render_fractal(t_vars *fractal);
-void			add_pixels_to_image(t_vars *vars, void (*fractal)(t_point p,
-						t_vars *, t_fractal *));
+void			add_pixels_to_image(t_vars *vars);
 double			scale(double unscaled_num, double new_min, double new_max,
 					double old_max);
 void			put_pixel(t_img *data, int x, int y, int color);

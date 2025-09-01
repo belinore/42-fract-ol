@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:27:35 by belinore          #+#    #+#             */
-/*   Updated: 2025/08/29 15:45:12 by belinore         ###   ########.fr       */
+/*   Updated: 2025/08/31 19:30:50 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	mandelbrot(t_point p, t_vars *vars, t_fractal *fractal)
 	i = 0;
 	z.xr = 0.0;
 	z.yi = 0.0;
-	c.xr = scale(p.x, fractal->min.x, fractal->max.x, WIDTH) + fractal->x_shift;
+	c.xr = scale(p.x, fractal->min.x, fractal->max.x, WIDTH) + fractal->x_shift; //this is line 38
 	c.yi = scale(p.y, fractal->min.y, fractal->max.y, HEIGHT) + fractal->y_shift;
 	while (i < vars->fractal.iterations)
 	{
@@ -45,9 +45,7 @@ void	mandelbrot(t_point p, t_vars *vars, t_fractal *fractal)
 		z.xr = x2 - y2 + c.xr;
 		if (x2 + y2 > vars->fractal.max_value)
 		{
-			pthread_mutex_lock(&vars->mutex);
 			put_pixel(&vars->img, p.x, p.y, get_color(i, vars));
-			pthread_mutex_unlock(&vars->mutex);
 			return ;
 		}
 		i++;

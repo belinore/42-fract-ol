@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:27:11 by belinore          #+#    #+#             */
-/*   Updated: 2025/08/29 15:56:09 by belinore         ###   ########.fr       */
+/*   Updated: 2025/08/31 19:26:19 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,8 +97,25 @@ int	move_handler(int x, int y, t_vars *vars)
 	return (0);
 }
 
+void stop_threads(t_vars *vars)
+{
+    pthread_mutex_lock(&vars->threads.mutex);
+    vars->threads.stop = 1;
+    pthread_cond_broadcast(&vars->threads.cond);
+    pthread_mutex_unlock(&vars->threads.mutex);
+    for (int i = 0; i < MAX_THREADS; i++)
+        pthread_join(vars->threads.thread[i].thread, NULL);
+	printf("stopped threads\n");
+}
+
 int	close_window(t_vars *vars)
 {
+	if (vars->threads.multithreading)
+	{
+		stop_threads(vars);
+		pthread_mutex_destroy(&vars->threads.mutex);
+		pthread_cond_destroy(&vars->threads.cond);
+	}
 	mlx_destroy_image(vars->mlx, vars->img.img_ptr);
 	mlx_destroy_window(vars->mlx, vars->window);
 	//mlx_destroy_display(vars->mlx);

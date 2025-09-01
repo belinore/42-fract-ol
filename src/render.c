@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:27:23 by belinore          #+#    #+#             */
-/*   Updated: 2025/08/29 17:49:27 by belinore         ###   ########.fr       */
+/*   Updated: 2025/09/01 16:59:46 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,13 +33,14 @@ void	render_fractal(t_vars *vars)
 	vars->img.pixel_ptr = mlx_get_data_addr(vars->img.img_ptr, &vars->img.bpp,
 			&vars->img.line_length, &vars->img.endian);
 	if (vars->fractal.code == 'm')
-		add_pixels_to_image(vars, mandelbrot);
+		vars->fract_calc = mandelbrot;
 	else if (vars->fractal.code == 'j')
-		add_pixels_to_image(vars, julia);
+		vars->fract_calc = julia;
 	else if (vars->fractal.code == 'b')
-		add_pixels_to_image(vars, burning_ship);
+		vars->fract_calc = burning_ship;
 	else if (vars->fractal.code == 's')
-		add_pixels_to_image(vars, julia_ship);
+		vars->fract_calc = julia_ship;
+	add_pixels_to_image(vars);
 	mlx_put_image_to_window(vars->mlx, vars->window, vars->img.img_ptr, 0, 0);
 	double end = now_in_ms();
 	printf("Render time: %.2f ms\n", end - start);
@@ -51,63 +52,58 @@ void	*thread_render_section(void *arg)
 	t_point	pixel;
 
 	thread = (t_thread *)arg;
-	pixel.y = thread->start_y;
-	while (pixel.y < thread->end_y)
+	while (1)
 	{
-		pixel.x = 0;
-		while (pixel.x < WIDTH)
+		pthread_mutex_lock(&thread->vars->threads.mutex);
+		while (thread->vars->threads.frame_id == thread->last_frame && !thread->vars->threads.stop)
+            pthread_cond_wait(&thread->vars->threads.cond, &thread->vars->threads.mutex);
+		if (thread->vars->threads.stop)
 		{
-			//mandelbrot(pixel, thread->vars, &thread->vars->fractal);
-			thread->vars->fract_calc(pixel, thread->vars, &thread->vars->fractal);
-			pixel.x++;
+        	pthread_mutex_unlock(&thread->vars->threads.mutex);		
+			break ;
 		}
-		pixel.y++;
+		thread->last_frame = thread->vars->threads.frame_id;
+        pthread_mutex_unlock(&thread->vars->threads.mutex);		
+		//main task
+		//fprintf(stderr, "[T%02d] begin rows %d..%d\n", thread->id, thread->start_y, thread->end_y);
+		pixel.y = thread->start_y;
+		while (pixel.y < thread->end_y)
+		{
+			pixel.x = 0;
+			while (pixel.x < WIDTH)
+			{
+				thread->vars->fract_calc(pixel, thread->vars, &thread->vars->fractal);
+				pixel.x++;
+			}
+			pixel.y++;
+		}
+		//end task
+		pthread_mutex_lock(&thread->vars->threads.mutex);
+        thread->vars->threads.work_done++;
+		//fprintf(stderr, "[T%02d] done -> work_done=%d\n", thread->id, thread->vars->threads.work_done);
+        if (thread->vars->threads.work_done == thread->vars->threads.nb_threads)
+            pthread_cond_signal(&thread->vars->threads.cond);
+        pthread_mutex_unlock(&thread->vars->threads.mutex);
 	}
 	return (NULL);
 }
 
-void	divide_pixels_per_thread(t_vars *vars, int nb_threads, void (*fractal)
-							(t_point,t_vars *, t_fractal *))
-{
-	int	section_size;
-	int i;
-
-	section_size = HEIGHT / nb_threads;
-	vars->fract_calc = fractal;
-	pthread_mutex_init(&vars->mutex, NULL);
-	i = 0;
-	while (i < nb_threads)
-	{
-		vars->threads[i].start_y = i * section_size;
-		vars->threads[i].end_y = (i == nb_threads - 1) ? HEIGHT : (i + 1) * section_size; //???
-		vars->threads[i].id = i;
-		vars->threads[i].vars = vars;
-		pthread_create(&vars->threads[i].thread, NULL, thread_render_section, &vars->threads[i]);
-		i++;
-	}
-	i = 0;
-	while (i < nb_threads)
-	{
-		pthread_join(vars->threads[i].thread, NULL);
-		i++;
-	}
-	pthread_mutex_destroy(&vars->mutex);
-}
-
-void	add_pixels_to_image(t_vars *vars, void (*fractal)(t_point p, t_vars *,
-							t_fractal *))
+void	add_pixels_to_image(t_vars *vars)
 {
 	t_point pixel;
-	int		nb_threads;
 		
-	nb_threads = sysconf(_SC_NPROCESSORS_ONLN) - 1;
-	if (nb_threads < 1 || vars->multithreading == 0)
-		nb_threads = 1;
-	else if (nb_threads > MAX_CORES)
-		nb_threads = MAX_CORES;
-	if (nb_threads > 1)
+	if (vars->threads.multithreading)
 	{
-		divide_pixels_per_thread(vars, nb_threads, fractal);
+		pthread_mutex_lock(&vars->threads.mutex);
+    	vars->threads.work_done = 0;
+		vars->threads.frame_id++;
+		//fprintf(stderr, "[main] broadcasting, work_done reset to 0\n");
+		pthread_cond_broadcast(&vars->threads.cond);
+		while (vars->threads.work_done < vars->threads.nb_threads)
+        	pthread_cond_wait(&vars->threads.cond, &vars->threads.mutex);
+		//fprintf(stderr, "[main] all workers done (work_done=%d)\n", vars->threads.work_done);
+		vars->threads.work_available = 0;
+		pthread_mutex_unlock(&vars->threads.mutex);
 		return ;
 	}
 	pixel.y = 0;
@@ -116,7 +112,7 @@ void	add_pixels_to_image(t_vars *vars, void (*fractal)(t_point p, t_vars *,
 		pixel.x = 0;
 		while (pixel.x < WIDTH)
 		{
-			fractal(pixel, vars, &vars->fractal);
+			vars->fract_calc(pixel, vars, &vars->fractal);
 			pixel.x++;
 		}
 		pixel.y++;

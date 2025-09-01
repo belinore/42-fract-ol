@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:26:56 by belinore          #+#    #+#             */
-/*   Updated: 2025/08/29 17:37:01 by belinore         ###   ########.fr       */
+/*   Updated: 2025/08/31 19:35:09 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,11 @@ void	initialize_mlx(t_vars *vars)
 	}
 	vars->img.pixel_ptr = mlx_get_data_addr(vars->img.img_ptr, &vars->img.bpp,
 			&vars->img.line_length, &vars->img.endian);
-	//vars->multithreading = 1; // swicth for event
+	vars->threads.nb_threads = sysconf(_SC_NPROCESSORS_ONLN) - 1;
+	if (vars->threads.nb_threads < 1)
+		vars->threads.nb_threads = 1;
+	else if (vars->threads.nb_threads > MAX_THREADS)
+		vars->threads.nb_threads = MAX_THREADS;
 }
 
 void	print_instructions(void)
