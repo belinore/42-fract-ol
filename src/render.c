@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:27:23 by belinore          #+#    #+#             */
-/*   Updated: 2025/09/01 16:59:46 by belinore         ###   ########.fr       */
+/*   Updated: 2025/09/01 19:36:19 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ void	*thread_render_section(void *arg)
 {
 	t_thread *thread;
 	t_point	pixel;
+	int		end_row;
 
 	thread = (t_thread *)arg;
 	while (1)
@@ -62,12 +63,24 @@ void	*thread_render_section(void *arg)
         	pthread_mutex_unlock(&thread->vars->threads.mutex);		
 			break ;
 		}
-		thread->last_frame = thread->vars->threads.frame_id;
+		pixel.y = thread->vars->threads.next_row;
+		if (pixel.y >= HEIGHT)
+		{
+			thread->last_frame = thread->vars->threads.frame_id;
+			thread->vars->threads.work_done++;
+			if (thread->vars->threads.work_done == thread->vars->threads.nb_threads)
+            	pthread_cond_signal(&thread->vars->threads.cond);
+			pthread_mutex_unlock(&thread->vars->threads.mutex);	
+			continue ;
+		}
+		end_row = pixel.y + ROWS_PER_TASK;
+		if (end_row > HEIGHT)
+			end_row = HEIGHT;
+		thread->vars->threads.next_row += ROWS_PER_TASK;
         pthread_mutex_unlock(&thread->vars->threads.mutex);		
 		//main task
-		//fprintf(stderr, "[T%02d] begin rows %d..%d\n", thread->id, thread->start_y, thread->end_y);
-		pixel.y = thread->start_y;
-		while (pixel.y < thread->end_y)
+		//fprintf(stderr, "[T%02d] begin rows %d..%d\n", thread->id, (int)pixel.y, end_row);
+		while (pixel.y < end_row)
 		{
 			pixel.x = 0;
 			while (pixel.x < WIDTH)
@@ -78,12 +91,6 @@ void	*thread_render_section(void *arg)
 			pixel.y++;
 		}
 		//end task
-		pthread_mutex_lock(&thread->vars->threads.mutex);
-        thread->vars->threads.work_done++;
-		//fprintf(stderr, "[T%02d] done -> work_done=%d\n", thread->id, thread->vars->threads.work_done);
-        if (thread->vars->threads.work_done == thread->vars->threads.nb_threads)
-            pthread_cond_signal(&thread->vars->threads.cond);
-        pthread_mutex_unlock(&thread->vars->threads.mutex);
 	}
 	return (NULL);
 }
@@ -96,13 +103,13 @@ void	add_pixels_to_image(t_vars *vars)
 	{
 		pthread_mutex_lock(&vars->threads.mutex);
     	vars->threads.work_done = 0;
+		vars->threads.next_row = 0;
 		vars->threads.frame_id++;
 		//fprintf(stderr, "[main] broadcasting, work_done reset to 0\n");
 		pthread_cond_broadcast(&vars->threads.cond);
 		while (vars->threads.work_done < vars->threads.nb_threads)
         	pthread_cond_wait(&vars->threads.cond, &vars->threads.mutex);
 		//fprintf(stderr, "[main] all workers done (work_done=%d)\n", vars->threads.work_done);
-		vars->threads.work_available = 0;
 		pthread_mutex_unlock(&vars->threads.mutex);
 		return ;
 	}

@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:27:05 by belinore          #+#    #+#             */
-/*   Updated: 2025/09/01 16:34:54 by belinore         ###   ########.fr       */
+/*   Updated: 2025/09/01 18:59:33 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ To switch from linux to mac
 # include <sys/time.h>
 
 # define MAX_THREADS 8
+# define ROWS_PER_TASK 30
 # define MAX_PALETTE_SIZE 1024
 # define MAX_BASE_COLORS 6
 # define ITERATIONS 50
@@ -193,7 +194,7 @@ typedef struct	s_threads
 	pthread_mutex_t	mutex;
 	pthread_cond_t	cond;
 	int				frame_id;
-	int				work_available;
+	int				next_row;
 	int				work_done;
 	int				stop;
 }					t_threads;
