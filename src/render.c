@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:27:23 by belinore          #+#    #+#             */
-/*   Updated: 2025/09/01 19:36:19 by belinore         ###   ########.fr       */
+/*   Updated: 2025/09/04 18:46:18 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ double  now_in_ms(void)
 
 void	render_fractal(t_vars *vars)
 {
-	double start = now_in_ms();
+	double start = now_in_ms();//to remove
 	if (vars->img.img_ptr)
 		mlx_destroy_image(vars->mlx, vars->img.img_ptr);
 	vars->img.img_ptr = mlx_new_image(vars->mlx, WIDTH, HEIGHT);
@@ -42,14 +42,30 @@ void	render_fractal(t_vars *vars)
 		vars->fract_calc = julia_ship;
 	add_pixels_to_image(vars);
 	mlx_put_image_to_window(vars->mlx, vars->window, vars->img.img_ptr, 0, 0);
-	double end = now_in_ms();
+	double end = now_in_ms(); //to remove
 	printf("Render time: %.2f ms\n", end - start);
+}
+
+void	render_section(int pixel_y, int end_y, t_vars *vars)
+{
+	int	pixel_x;
+
+	while (pixel_y < end_y)
+	{
+		pixel_x = 0;
+		while (pixel_x < WIDTH)
+		{
+			vars->fract_calc(pixel_x, pixel_y, vars, &vars->fractal);
+			pixel_x++;
+		}
+		pixel_y++;
+	}
 }
 
 void	*thread_render_section(void *arg)
 {
 	t_thread *thread;
-	t_point	pixel;
+	int		start_row;
 	int		end_row;
 
 	thread = (t_thread *)arg;
@@ -58,13 +74,10 @@ void	*thread_render_section(void *arg)
 		pthread_mutex_lock(&thread->vars->threads.mutex);
 		while (thread->vars->threads.frame_id == thread->last_frame && !thread->vars->threads.stop)
             pthread_cond_wait(&thread->vars->threads.cond, &thread->vars->threads.mutex);
-		if (thread->vars->threads.stop)
-		{
-        	pthread_mutex_unlock(&thread->vars->threads.mutex);		
+		if (thread->vars->threads.stop)	
 			break ;
-		}
-		pixel.y = thread->vars->threads.next_row;
-		if (pixel.y >= HEIGHT)
+		start_row = thread->vars->threads.next_row;
+		if (start_row >= HEIGHT)
 		{
 			thread->last_frame = thread->vars->threads.frame_id;
 			thread->vars->threads.work_done++;
@@ -73,32 +86,19 @@ void	*thread_render_section(void *arg)
 			pthread_mutex_unlock(&thread->vars->threads.mutex);	
 			continue ;
 		}
-		end_row = pixel.y + ROWS_PER_TASK;
+		end_row = start_row + ROWS_PER_TASK;
 		if (end_row > HEIGHT)
 			end_row = HEIGHT;
 		thread->vars->threads.next_row += ROWS_PER_TASK;
         pthread_mutex_unlock(&thread->vars->threads.mutex);		
-		//main task
-		//fprintf(stderr, "[T%02d] begin rows %d..%d\n", thread->id, (int)pixel.y, end_row);
-		while (pixel.y < end_row)
-		{
-			pixel.x = 0;
-			while (pixel.x < WIDTH)
-			{
-				thread->vars->fract_calc(pixel, thread->vars, &thread->vars->fractal);
-				pixel.x++;
-			}
-			pixel.y++;
-		}
-		//end task
+		render_section(start_row, end_row, thread->vars);
 	}
+	pthread_mutex_unlock(&thread->vars->threads.mutex);
 	return (NULL);
 }
 
 void	add_pixels_to_image(t_vars *vars)
-{
-	t_point pixel;
-		
+{	
 	if (vars->threads.multithreading)
 	{
 		pthread_mutex_lock(&vars->threads.mutex);
@@ -113,37 +113,9 @@ void	add_pixels_to_image(t_vars *vars)
 		pthread_mutex_unlock(&vars->threads.mutex);
 		return ;
 	}
-	pixel.y = 0;
-	while (pixel.y < HEIGHT)
-	{
-		pixel.x = 0;
-		while (pixel.x < WIDTH)
-		{
-			vars->fract_calc(pixel, vars, &vars->fractal);
-			pixel.x++;
-		}
-		pixel.y++;
-	}
+	else
+		render_section(0, HEIGHT, vars);
 }
-
-// void	add_pixels_to_image(t_vars *vars, void (*fractal)(t_point p, t_vars *,
-// 							t_fractal *))
-// {
-// 	int			x;
-// 	int			y;
-
-// 	y = 0;
-// 	while (y < HEIGHT)
-// 	{
-// 		x = 0;
-// 		while (x < WIDTH)
-// 		{
-// 			fractal(x, y, vars, &vars->fractal);
-// 			x++;
-// 		}
-// 		y++;
-// 	}
-// }
 
 // Linear interpolation to convert pixels from a 0 to WIDTH (x axis)
 // and 0 to HEIGHT (y axis) grid, to a -2 to 2 (x) and -2 to to 2 (y)

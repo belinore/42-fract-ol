@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:27:35 by belinore          #+#    #+#             */
-/*   Updated: 2025/08/31 19:30:50 by belinore         ###   ########.fr       */
+/*   Updated: 2025/09/04 18:40:30 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 // x^2 + 2xyi - y^2 
 // real part is x^2 - y^2
 // imaginary is 2*x*y
-void	mandelbrot(t_point p, t_vars *vars, t_fractal *fractal)
+void	mandelbrot(int x, int y, t_vars *vars, t_fractal *fractal)
 {
 	t_complex	z;
 	t_complex	c;
@@ -35,8 +35,8 @@ void	mandelbrot(t_point p, t_vars *vars, t_fractal *fractal)
 	i = 0;
 	z.xr = 0.0;
 	z.yi = 0.0;
-	c.xr = scale(p.x, fractal->min.x, fractal->max.x, WIDTH) + fractal->x_shift; //this is line 38
-	c.yi = scale(p.y, fractal->min.y, fractal->max.y, HEIGHT) + fractal->y_shift;
+	c.xr = scale(x, fractal->min.x, fractal->max.x, WIDTH) + fractal->x_shift; //this is line 38
+	c.yi = scale(y, fractal->min.y, fractal->max.y, HEIGHT) + fractal->y_shift;
 	while (i < vars->fractal.iterations)
 	{
 		x2 = z.xr * z.xr;
@@ -45,19 +45,19 @@ void	mandelbrot(t_point p, t_vars *vars, t_fractal *fractal)
 		z.xr = x2 - y2 + c.xr;
 		if (x2 + y2 > vars->fractal.max_value)
 		{
-			put_pixel(&vars->img, p.x, p.y, get_color(i, vars));
+			put_pixel(&vars->img, x, y, get_color(i, vars));
 			return ;
 		}
 		i++;
 	}
-	put_pixel(&vars->img, p.x, p.y, BLACK);
+	put_pixel(&vars->img, x, y, BLACK);
 }
 
 // julia formula:
 // z = z^2 + c
 // c is a constant complex number
 // z is the pixel converted to the complex plane
-void	julia(t_point p, t_vars *vars, t_fractal *fractal)
+void	julia(int x, int y, t_vars *vars, t_fractal *fractal)
 {
 	t_complex	z;
 	t_complex	c;
@@ -67,8 +67,8 @@ void	julia(t_point p, t_vars *vars, t_fractal *fractal)
 
 	i = 0;
 	c = fractal->c;
-	z.xr = scale(p.x, fractal->min.x, fractal->max.x, WIDTH) + fractal->x_shift;
-	z.yi = scale(p.y, fractal->min.y, fractal->max.y, HEIGHT) + fractal->y_shift;
+	z.xr = scale(x, fractal->min.x, fractal->max.x, WIDTH) + fractal->x_shift;
+	z.yi = scale(y, fractal->min.y, fractal->max.y, HEIGHT) + fractal->y_shift;
 	while (i < vars->fractal.iterations)
 	{
 		x2 = z.xr * z.xr;
@@ -77,18 +77,18 @@ void	julia(t_point p, t_vars *vars, t_fractal *fractal)
 		z.xr = x2 - y2 + c.xr;
 		if (x2 + y2 > vars->fractal.max_value)
 		{
-			put_pixel(&vars->img, p.x, p.y, get_color(i, vars));
+			put_pixel(&vars->img, x, y, get_color(i, vars));
 			return ;
 		}
 		i++;
 	}
-	put_pixel(&vars->img, p.x, p.y, BLACK);
+	put_pixel(&vars->img, x, y, BLACK);
 }
 
 // burning ship formula:
 // same as mandelbrot but uses the absolute value of z^2
 // z = |z^2| + c
-void	burning_ship(t_point p, t_vars *vars, t_fractal *fractal)
+void	burning_ship(int x, int y, t_vars *vars, t_fractal *fractal)
 {
 	t_complex	z;
 	t_complex	c;
@@ -99,8 +99,8 @@ void	burning_ship(t_point p, t_vars *vars, t_fractal *fractal)
 	i = 0;
 	z.xr = 0.0;
 	z.yi = 0.0;
-	c.xr = scale(p.x, fractal->min.x, fractal->max.x, WIDTH) + fractal->x_shift;
-	c.yi = scale(p.y, fractal->min.y, fractal->max.y, HEIGHT) + fractal->y_shift;
+	c.xr = scale(x, fractal->min.x, fractal->max.x, WIDTH) + fractal->x_shift;
+	c.yi = scale(y, fractal->min.y, fractal->max.y, HEIGHT) + fractal->y_shift;
 	while (i < vars->fractal.iterations)
 	{
 		x2 = z.xr * z.xr;
@@ -109,17 +109,17 @@ void	burning_ship(t_point p, t_vars *vars, t_fractal *fractal)
 		z.xr = x2 - y2 + c.xr;
 		if (x2 + y2 > vars->fractal.max_value)
 		{
-			put_pixel(&vars->img, p.x, p.y, get_color(i, vars));
+			put_pixel(&vars->img, x, y, get_color(i, vars));
 			return ;
 		}
 		i++;
 	}
-	put_pixel(&vars->img, p.x, p.y, BLACK);
+	put_pixel(&vars->img, x, y, BLACK);
 }
 
 // burning ship julia sets formula:
 // same as julia but uses the absolute value of z^2
-void	julia_ship(t_point p, t_vars *vars, t_fractal *fractal)
+void	julia_ship(int x, int y, t_vars *vars, t_fractal *fractal)
 {
 	t_complex	z;
 	t_complex	c;
@@ -129,8 +129,8 @@ void	julia_ship(t_point p, t_vars *vars, t_fractal *fractal)
 
 	i = 0;
 	c = vars->fractal.c;
-	z.xr = scale(p.x, fractal->min.x, fractal->max.x, WIDTH) + fractal->x_shift;
-	z.yi = scale(p.y, fractal->min.y, fractal->max.y, HEIGHT) + fractal->y_shift;
+	z.xr = scale(x, fractal->min.x, fractal->max.x, WIDTH) + fractal->x_shift;
+	z.yi = scale(y, fractal->min.y, fractal->max.y, HEIGHT) + fractal->y_shift;
 	while (i < vars->fractal.iterations)
 	{
 		x2 = z.xr * z.xr;
@@ -139,10 +139,10 @@ void	julia_ship(t_point p, t_vars *vars, t_fractal *fractal)
 		z.xr = x2 - y2 + c.xr;
 		if (x2 + y2 > vars->fractal.max_value)
 		{
-			put_pixel(&vars->img, p.x, p.y, get_color(i, vars));
+			put_pixel(&vars->img, x, y, get_color(i, vars));
 			return ;
 		}
 		i++;
 	}
-	put_pixel(&vars->img, p.x, p.y, BLACK);
+	put_pixel(&vars->img, x, y, BLACK);
 }

@@ -6,7 +6,7 @@
 /*   By: belinore <belinore@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/22 18:27:05 by belinore          #+#    #+#             */
-/*   Updated: 2025/09/01 18:59:33 by belinore         ###   ########.fr       */
+/*   Updated: 2025/09/04 18:41:22 by belinore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ To switch from linux to mac
 # include <sys/time.h>
 
 # define MAX_THREADS 8
-# define ROWS_PER_TASK 30
+# define ROWS_PER_TASK 20
 # define MAX_PALETTE_SIZE 1024
 # define MAX_BASE_COLORS 6
 # define ITERATIONS 50
@@ -210,7 +210,7 @@ typedef struct s_vars
 	t_point		mouse;
 	t_colors	colors;
 	int			mouse_evolve;
-	void		(*fract_calc)(t_point, struct s_vars *, t_fractal *);
+	void		(*fract_calc)(int, int, struct s_vars *, t_fractal *);
 }				t_vars;
 
 void			initialize_threads(t_vars *vars);
@@ -242,10 +242,10 @@ double			scale(double unscaled_num, double new_min, double new_max,
 void			put_pixel(t_img *data, int x, int y, int color);
 
 // fractals.c
-void			mandelbrot(t_point p, t_vars *vars, t_fractal *fractal);
-void			julia(t_point p, t_vars *vars, t_fractal *fractal);
-void			burning_ship(t_point p, t_vars *vars, t_fractal *fractal);
-void			julia_ship(t_point p, t_vars *vars, t_fractal *fractal);
+void			mandelbrot(int x, int y, t_vars *vars, t_fractal *fractal);
+void			julia(int x, int y, t_vars *vars, t_fractal *fractal);
+void			burning_ship(int x, int y, t_vars *vars, t_fractal *fractal);
+void			julia_ship(int x, int y, t_vars *vars, t_fractal *fractal);
 
 // colors.c
 int				get_color(int i, t_vars *vars);
